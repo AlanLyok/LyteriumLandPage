@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSOCRComprobantes - Procesamiento Inteligente de Comprobantes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary-color: #10b981;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+            --white: #ffffff;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .cta-button {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .cta-button-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .cta-button-secondary:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 5rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--white);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero .cta-button {
+            background: var(--white);
+            color: var(--primary-color);
+        }
+
+        .hero .cta-button:hover {
+            background: var(--bg-light);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background: var(--bg-light);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.125rem;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 5rem 0;
+        }
+
+        .pricing-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary-color);
+            border-width: 3px;
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-period {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            padding: 0.5rem 0;
+            color: var(--text-dark);
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .plan-button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            padding: 5rem 0;
+            background: var(--bg-light);
+        }
+
+        .comparison-table {
+            overflow-x: auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-light);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        tr:hover {
+            background: var(--bg-light);
+        }
+
+        .check {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .cross {
+            color: var(--text-light);
+        }
+
+        /* On-Premise Section */
+        .on-premise {
+            padding: 5rem 0;
+        }
+
+        .on-premise-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .on-premise-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .on-premise-text p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.125rem;
+        }
+
+        .on-premise-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .on-premise-features li {
+            padding: 0.75rem 0;
+            color: var(--text-dark);
+            font-size: 1.125rem;
+        }
+
+        .on-premise-features li::before {
+            content: "→";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .price-box {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--primary-color);
+        }
+
+        .price-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .price-box .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .price-box p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 5rem 0;
+            background: var(--bg-light);
+            text-align: center;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .contact-item h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .contact-item p {
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: var(--white);
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.125rem;
+            }
+
+            .on-premise-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .pricing-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">MSOCRComprobantes</div>
+            <ul class="nav-links">
+                <li><a href="#features">Características</a></li>
+                <li><a href="#pricing">Precios</a></li>
+                <li><a href="#on-premise">On-Premise</a></li>
+                <li><a href="#contact">Contacto</a></li>
+            </ul>
+            <a href="#contact" class="cta-button">Contactar</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Procesamiento Inteligente de Comprobantes</h1>
+            <p>API REST potente para extraer información estructurada de comprobantes fiscales mediante OCR, Machine Learning y lectura de códigos QR</p>
+            <div class="hero-buttons">
+                <a href="#pricing" class="cta-button">Ver Planes</a>
+                <a href="#features" class="cta-button cta-button-secondary">Conocer Más</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Características Principales</h2>
+            <p class="section-subtitle">Tecnología avanzada para procesar comprobantes con precisión y velocidad</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>OCR Avanzado</h3>
+                    <p>Procesamiento con Tesseract optimizado y pool de motores para máximo rendimiento</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Machine Learning</h3>
+                    <p>ML.NET con modelos especializados para mejorar la precisión de extracción de datos</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3>Múltiples Formatos</h3>
+                    <p>Soporte para PDFs e imágenes (PNG, JPG, JPEG) con procesamiento de todas las páginas</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Seguridad</h3>
+                    <p>Autenticación JWT, encriptación de datos y sistema multi-tenant</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Alto Rendimiento</h3>
+                    <p>Caché OCR, procesamiento en lotes y pipeline modular optimizado</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Formatos de Salida</h3>
+                    <p>Exportación en formatos ARCA y JSON según normativa AFIP</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Planes SaaS</h2>
+            <p class="section-subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+            <div class="pricing-options">
+                <!-- Starter Plan -->
+                <div class="pricing-card">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-description">Ideal para pequeñas empresas</div>
+                    <div class="plan-price">$99</div>
+                    <div class="plan-period">por mes</div>
+                    <ul class="plan-features">
+                        <li>500 comprobantes/mes</li>
+                        <li>Archivos hasta 10 MB</li>
+                        <li>Hasta 10 páginas/comprobante</li>
+                        <li>2 usuarios simultáneos</li>
+                        <li>Formato JSON</li>
+                        <li>Soporte por email (48h)</li>
+                    </ul>
+                    <a href="#contact" class="cta-button plan-button">Empezar</a>
+                </div>
+
+                <!-- Professional Plan -->
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Popular</div>
+                    <div class="plan-name">Professional</div>
+                    <div class="plan-description">Para empresas medianas</div>
+                    <div class="plan-price">$499</div>
+                    <div class="plan-period">por mes</div>
+                    <ul class="plan-features">
+                        <li>5,000 comprobantes/mes</li>
+                        <li>Archivos hasta 20 MB</li>
+                        <li>Hasta 50 páginas/comprobante</li>
+                        <li>10 usuarios simultáneos</li>
+                        <li>Formatos ARCA + JSON</li>
+                        <li>Procesamiento ML avanzado</li>
+                        <li>Caché OCR</li>
+                        <li>Procesamiento en lotes</li>
+                        <li>Soporte prioritario (24h)</li>
+                        <li>Dashboard de métricas</li>
+                    </ul>
+                    <a href="#contact" class="cta-button plan-button">Empezar</a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <div class="plan-name">Enterprise</div>
+                    <div class="plan-description">Para grandes empresas</div>
+                    <div class="plan-price">$1,999</div>
+                    <div class="plan-period">por mes</div>
+                    <ul class="plan-features">
+                        <li>50,000 comprobantes/mes</li>
+                        <li>Archivos hasta 50 MB</li>
+                        <li>Páginas ilimitadas</li>
+                        <li>Usuarios ilimitados</li>
+                        <li>Formatos personalizados</li>
+                        <li>Todos los modelos ML</li>
+                        <li>Multi-tenant</li>
+                        <li>Base de datos dedicada</li>
+                        <li>Soporte 24/7</li>
+                        <li>SLA 99.9%</li>
+                        <li>Dashboard completo</li>
+                    </ul>
+                    <a href="#contact" class="cta-button plan-button">Contactar</a>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="comparison">
+                <h2 class="section-title">Comparativa de Planes</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th>Starter</th>
+                                <th>Professional</th>
+                                <th>Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Comprobantes/mes</td>
+                                <td>500</td>
+                                <td>5,000</td>
+                                <td>50,000</td>
+                            </tr>
+                            <tr>
+                                <td>Precio mensual</td>
+                                <td>$99</td>
+                                <td>$499</td>
+                                <td>$1,999</td>
+                            </tr>
+                            <tr>
+                                <td>Tamaño máximo archivo</td>
+                                <td>10 MB</td>
+                                <td>20 MB</td>
+                                <td>50 MB</td>
+                            </tr>
+                            <tr>
+                                <td>Páginas/comprobante</td>
+                                <td>10</td>
+                                <td>50</td>
+                                <td>Ilimitado</td>
+                            </tr>
+                            <tr>
+                                <td>ML Avanzado</td>
+                                <td class="cross">—</td>
+                                <td class="check">✓</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td>Formatos de salida</td>
+                                <td>JSON</td>
+                                <td>ARCA + JSON</td>
+                                <td>ARCA + JSON + Custom</td>
+                            </tr>
+                            <tr>
+                                <td>Usuarios simultáneos</td>
+                                <td>2</td>
+                                <td>10</td>
+                                <td>Ilimitado</td>
+                            </tr>
+                            <tr>
+                                <td>Soporte técnico</td>
+                                <td>Email (48h)</td>
+                                <td>Email (24h)</td>
+                                <td>24/7</td>
+                            </tr>
+                            <tr>
+                                <td>SLA</td>
+                                <td>—</td>
+                                <td>99%</td>
+                                <td>99.9%</td>
+                            </tr>
+                            <tr>
+                                <td>Multi-tenant</td>
+                                <td class="cross">—</td>
+                                <td class="cross">—</td>
+                                <td class="check">✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- On-Premise Section -->
+    <section class="on-premise" id="on-premise">
+        <div class="container">
+            <h2 class="section-title">Instalación On-Premise</h2>
+            <p class="section-subtitle">Control total de tus datos con licencia perpetua</p>
+            <div class="on-premise-content">
+                <div class="on-premise-text">
+                    <h2>Máxima Seguridad y Control</h2>
+                    <p>Ideal para empresas que requieren control total de sus datos o tienen restricciones de seguridad estrictas.</p>
+                    <ul class="on-premise-features">
+                        <li>Licencia perpetua sin costos mensuales</li>
+                        <li>Instalación en tu propia infraestructura</li>
+                        <li>Control total de datos</li>
+                        <li>Sin límites de uso interno</li>
+                        <li>Personalización completa</li>
+                        <li>Acceso a código fuente (opcional)</li>
+                        <li>Instalación y capacitación incluidas</li>
+                        <li>Soporte técnico post-instalación</li>
+                    </ul>
+                    <a href="#contact" class="cta-button">Solicitar Cotización</a>
+                </div>
+                <div class="price-box">
+                    <h3>Inversión</h3>
+                    <div class="price">Desde $15,000</div>
+                    <p>Precio varía según configuración, usuarios y personalizaciones requeridas</p>
+                    <ul class="plan-features">
+                        <li>Licencia perpetua</li>
+                        <li>Instalación incluida</li>
+                        <li>Capacitación (4 horas)</li>
+                        <li>Soporte 30 días</li>
+                        <li>Actualizaciones seguridad (12 meses)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">¿Listo para empezar?</h2>
+            <p class="section-subtitle">Contáctanos para una demostración o consulta personalizada</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h3>Email</h3>
+                    <p>ventas@msocrcomprobantes.com</p>
+                </div>
+                <div class="contact-item">
+                    <h3>Teléfono</h3>
+                    <p>+54 11 XXXX-XXXX</p>
+                </div>
+                <div class="contact-item">
+                    <h3>Prueba Gratuita</h3>
+                    <p>14 días, hasta 100 comprobantes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 MSOCRComprobantes. Todos los derechos reservados.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Versión 1.0 - Enero 2025</p>
+        </div>
+    </footer>
+</body>
+</html>
+
